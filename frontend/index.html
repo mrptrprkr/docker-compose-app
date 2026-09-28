@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps Deployment Dashboard</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #111827;
+        color: #e5e7eb;
+        margin: 0;
+        padding: 40px;
+    }
+
+    .container {
+        max-width: 900px;
+        margin: auto;
+    }
+
+    h1 {
+        margin-bottom: 5px;
+    }
+
+    .subtitle {
+        color: #9ca3af;
+        margin-bottom: 30px;
+    }
+
+    .services {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+
+    .card {
+        background: #1f2937;
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+    .status {
+        color: #4ade80;
+        font-weight: bold;
+    }
+
+    .architecture {
+        margin-top: 25px;
+        background: #1f2937;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        font-family: monospace;
+    }
+
+    .details {
+        margin-top: 25px;
+        color: #9ca3af;
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>DevOps Deployment Dashboard</h1>
+    <div class="subtitle">Multi-container application deployed with Docker Compose</div>
+
+    <div class="services">
+
+        <div class="card">
+            <h3>Nginx</h3>
+            <p>Frontend / Proxy</p>
+            <span class="status">● Running</span>
+        </div>
+
+        <div class="card">
+            <h3>Python API</h3>
+            <p>Flask Backend</p>
+            <span id="api-status">Checking...</span>
+        </div>
+
+        <div class="card">
+            <h3>PostgreSQL</h3>
+            <p>Persistent Database</p>
+            <span id="db-status">Checking...</span>
+        </div>
+
+    </div>
+
+    <div class="architecture">
+        Nginx :80 &nbsp; → &nbsp; Flask :5000 &nbsp; → &nbsp; PostgreSQL :5432
+    </div>
+
+    <div class="details">
+        <p><strong>API container:</strong> <span id="hostname">Loading...</span></p>
+        <p><strong>Persistent database visits:</strong> <span id="visits">Loading...</span></p>
+    </div>
+
+</div>
+
+<script>
+fetch('/api/health')
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('api-status').innerHTML =
+            '<span class="status">● Healthy</span>';
+
+        document.getElementById('db-status').innerHTML =
+            '<span class="status">● Connected</span>';
+
+        document.getElementById('hostname').textContent =
+            data.hostname;
+    })
+    .catch(() => {
+        document.getElementById('api-status').textContent = 'Unavailable';
+        document.getElementById('db-status').textContent = 'Unavailable';
+    });
+
+fetch('/api/visits')
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('visits').textContent =
+            data.total_visits;
+    });
+</script>
+
+</body>
+</html>
